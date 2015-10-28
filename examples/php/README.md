@@ -1,0 +1,2 @@
+This is an example partial implementation of a BitGo Express wrapper in PHP. BitGoSDK.php implements only a very small
+portion of the possible applications, so feel free to extend it. To test it, please run example.php.
