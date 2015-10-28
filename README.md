@@ -1,6 +1,3 @@
-BitGo Express
-=======
-
 # BitGo Express Local Signing Server (REST API)
 
 BitGo Express makes it easy to build multi-signature Bitcoin applications in any language. BitGo Express provides a local REST API interface which handles all client-side operations involving your private keys. This ensures your keys never leave your network, and are not seen by BitGo. 
