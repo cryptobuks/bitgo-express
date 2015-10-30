@@ -24,6 +24,9 @@ Advanced
 
 https://www.bitgo.com/api/#bitgo-express-rest-api
 
+# Quick Start
+
+[Click here] (https://medium.com/@masonic_tweets/getting-started-with-bitgo-express-a097589c1e9c) to view our quick start guide. 
 
 
 
