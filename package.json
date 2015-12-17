@@ -1,6 +1,6 @@
 {
   "name": "bitgo-express",
-  "version": "0.11.43",
+  "version": "1.0.0",
   "description": "BitGo Express",
   "main": "index.js",
   "scripts": {
