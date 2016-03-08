@@ -1,5 +1,7 @@
 <img src="https://raw.githubusercontent.com/bitgo/bitgo-express/master/misc/img/logo.png" alt="BitGo Express" width="300">
 
+(https://travis-ci.org/BitGo/BitGoJS) [![BitGo Slack](https://slack.bitgo.com/badge.svg)](https://slack.bitgo.com)
+
 BitGo Express makes it easy to build multi-signature Bitcoin applications in any language. BitGo Express provides a local REST API interface which handles all client-side operations involving your private keys. This ensures your keys never leave your network, and are not seen by BitGo. 
 
 BitGo Express can also proxy the standard BitGo REST APIs, providing a unified interface to BitGo through a single REST API.
@@ -20,9 +22,11 @@ Advanced
 
 `npm install`
 
-# Documentation
+# Documentation & Help
 
 https://www.bitgo.com/api/#bitgo-express-rest-api
+
+Please join us on our [Slack channel](https://slack.bitgo.com) if you have any questions or comments.
 
 # Quick Start
 
