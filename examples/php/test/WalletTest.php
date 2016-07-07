@@ -94,9 +94,15 @@ class WalletTest extends PHPUnit_Framework_TestCase {
 		$this->assertNotEmpty($firstTx['id']);
 		$this->assertNotEmpty($firstTx['normalizedHash']);
 		$this->assertNotEmpty($firstTx['fee']);
-		$this->assertNotEmpty($firstTx['confirmations']);
-		$this->assertNotEmpty($firstTx['blockhash']);
-		$this->assertNotEmpty($firstTx['height']);
+
+		// confirmations could be 0
+		$this->assertNotNull($firstTx['confirmations']);
+		// if confirmations < 1, blockhash is undefined
+		if ($firstTx['confirmations'] > 0) {
+			$this->assertNotEmpty($firstTx['blockhash']);
+			$this->assertNotEmpty($firstTx['height']);
+		}
+
 		$this->assertNotEmpty($firstTx['inputs']);
 		$this->assertNotEmpty($firstTx['outputs']);
 		$this->assertNotEmpty($firstTx['entries']);
