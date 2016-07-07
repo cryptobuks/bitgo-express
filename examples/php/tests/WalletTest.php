@@ -2,9 +2,16 @@
 
 class WalletTest extends PHPUnit_Framework_TestCase {
 
+	private static $testWallet;
+
 	private static function getTestWallet() {
 		$bitgo = TestUtils::authenticateTestBitgo();
-		return $bitgo->wallets()->getWallet('2MtepahRn4qTihhTvUuGTYUyUBkQZzaVBG3');
+		$memoizedWallet = self::$testWallet;
+		if ($memoizedWallet instanceof \BitGo\Wallet) {
+			return $memoizedWallet;
+		}
+		self::$testWallet = $bitgo->wallets()->getWallet('2MtepahRn4qTihhTvUuGTYUyUBkQZzaVBG3');
+		return self::$testWallet;
 	}
 
 	public function testCreateAddress() {
