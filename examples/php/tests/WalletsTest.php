@@ -23,5 +23,72 @@ class WalletsTest extends PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('userKeychain', $wallet);
 		$this->assertArrayHasKey('backupKeychain', $wallet);
 		$this->assertArrayHasKey('bitgoKeychain', $wallet);
+		$wallet['wallet']->delete();
+	}
+
+	public function testCreateWalletWithBackupXpub() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$backupXpub = 'xpub661MyMwAqRbcGU7FnXMKSHMwbWxARxYJUpKD1CoMJP6vonLT9bZZaWYq7A7tKPXmDFFXTKigT7VHMnbtEnjCmxQ1E93ZJe6HDKwxWD28M6f';
+		$wallet = $bitgo->wallets()->createWallet('Test Wallet', 'test passphrase', null, $backupXpub);
+		$this->assertArrayHasKey('wallet', $wallet);
+		$this->assertArrayHasKey('userKeychain', $wallet);
+		$this->assertArrayHasKey('backupKeychain', $wallet);
+		$this->assertArrayHasKey('bitgoKeychain', $wallet);
+		$this->assertEquals($backupXpub, $wallet['backupKeychain']['xpub']);
+		$wallet['wallet']->delete();
+	}
+
+	public function testFreezeWallet() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->wallets()->createWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		$bitgo->unlock('0000000');
+		$wallet->freeze();
+		$bitgo->lock();
+		$wallet->delete();
+	}
+
+	public function testNegativeDurationFreezeWallet() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->wallets()->createWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		$bitgo->unlock('0000000');
+		try {
+			$wallet->freeze(-50);
+			$this->fail();
+		} catch (Exception $e) {
+			$this->assertEquals(400, $e->getCode());
+			$this->assertEquals('invalid limit', $e->getMessage());
+		}
+		$bitgo->lock();
+		$wallet->delete();
+	}
+
+	public function testDurationFreezeWalletRetrieval() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->wallets()->createWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		$bitgo->unlock('0000000');
+		$lockDuration = 50;
+		$wallet->freeze($lockDuration);
+		$bitgo->lock();
+		$refreshedWallet = $bitgo->wallets()->getWallet($wallet->getID());
+		$this->assertNotEmpty($refreshedWallet->getRawWallet()['freeze']['time']);
+		$this->assertNotEmpty($refreshedWallet->getRawWallet()['freeze']['expires']);
+		$wallet->delete();
+	}
+
+	public function testLockedFreezeWallet() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->wallets()->createWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		try {
+			$wallet->freeze();
+			$this->fail();
+		} catch (Exception $e) {
+			$this->assertEquals(401, $e->getCode());
+			$this->assertEquals('needs unlock', $e->getMessage());
+		}
+		$wallet->delete();
 	}
 }

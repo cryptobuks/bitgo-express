@@ -116,6 +116,11 @@ class BitGoSDK {
 		return $this->post('user/unlock', ['otp' => $otp]);
 	}
 
+	public function lock() {
+		$this->assertAuthenticated();
+		return $this->post('user/lock');
+	}
+
 	public function keychains() {
 		$this->assertAuthenticated();
 		return $this->_keychains;
