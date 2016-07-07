@@ -120,8 +120,8 @@ class Wallet {
 	 * @param null $message string message to pass along
 	 * @return mixed
 	 */
-	public function sendCoins($address, $amount, $message = null) {
-		return $this->sendMany([$address => $amount], $message);
+	public function sendCoins($address, $amount, $passphrase, $message = null) {
+		return $this->sendMany([$address => $amount], $passphrase, $message);
 	}
 
 	/**
@@ -129,8 +129,11 @@ class Wallet {
 	 * @param null $message
 	 * @return mixed
 	 */
-	public function sendMany($recipients, $message = null) {
-		$params = ['recipients' => $recipients];
+	public function sendMany($recipients, $passphrase, $message = null) {
+		$params = [
+			'recipients' => $recipients,
+			'walletPassphrase' => $passphrase
+		];
 		if (!empty($message)) {
 			$params['message'] = $message;
 		}
