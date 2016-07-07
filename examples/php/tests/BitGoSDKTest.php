@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: arik
- * Date: 10/28/15
- * Time: 12:11 PM
- */
-
 use BitGo\BitGoSDK;
 
 class BitGoSDKTest extends PHPUnit_Framework_TestCase {

@@ -1,11 +1,12 @@
 <?php
 
-namespace BitGo;
+namespace BitGo\eth;
 
+use BitGo\BitGoSDK;
 
-class Wallet {
+class EthWallet {
 	private $_bitgo;
-	private $_rawWallet;
+	private $_rawEthWallet;
 
 	/**
 	 * Wallet constructor.
@@ -14,62 +15,35 @@ class Wallet {
 	 */
 	public function __construct(BitGoSDK $bitgo, $rawWallet) {
 		$this->_bitgo = $bitgo;
-		$this->_rawWallet = $rawWallet;
+		$this->_rawEthWallet = $rawWallet;
 	}
 
 	/**
 	 * @return mixed
 	 */
 	public function getRawWallet() {
-		return $this->_rawWallet;
+		return $this->_rawEthWallet;
 	}
 
 	public function getID() {
-		return $this->_rawWallet['id'];
+		return $this->_rawEthWallet['id'];
 	}
 
 	public function getLabel() {
-		return $this->_rawWallet['label'];
+		return $this->_rawEthWallet['label'];
 	}
 
 	public function getBalance() {
-		return $this->_rawWallet['balance'];
-	}
 
-	public function getSpendableBalance() {
-		return $this->_rawWallet['spendableBalance'];
-	}
-
-	public function getConfirmedBalance() {
-		return $this->_rawWallet['confirmedBalance'];
-	}
-
-	public function canSendInstant() {
-		return !!$this->_rawWallet['canSendInstant'];
-	}
-
-	public function getInstantBalance() {
-		return $this->_rawWallet['instantBalance'];
-	}
-
-	public function listUnconfirmedSends() {
-		return $this->_rawWallet['unconfirmedSends'];
-	}
-
-	public function listUnconfirmedReceives() {
-		return $this->_rawWallet['unconfirmedReceives'];
+		return $this->_rawEthWallet['balance'];
 	}
 
 	public function getType() {
-		return $this->_rawWallet['type'];
+		return $this->_rawEthWallet['type'];
 	}
 
-	public function createAddress($chain = '0') {
-		return $this->_bitgo->post($this->url('address/' . $chain));
-	}
-
-	public function listAddresses() {
-		return $this->_bitgo->get($this->url('addresses'));
+	public function createAddress() {
+		return $this->_bitgo->post($this->url('address'));
 	}
 
 	public function getStats() {
@@ -98,10 +72,6 @@ class Wallet {
 		return $this->_bitgo->delete('labels/' . $this->getID() . '/' . $address);
 	}
 
-	public function listUnspents() {
-		return $this->_bitgo->get($this->url('unspents'));
-	}
-
 	public function listTransactions() {
 		return $this->_bitgo->get($this->url('tx'));
 	}
@@ -114,27 +84,21 @@ class Wallet {
 		return $this->_bitgo->get($this->url('tx/sequence/' . $sequenceID));
 	}
 
-	/**
-	 * @param $address string receive address
-	 * @param $amount integer amount in satoshis
-	 * @param null $message string message to pass along
-	 * @return mixed
-	 */
-	public function sendCoins($address, $amount, $message = null) {
-		return $this->sendMany([$address => $amount], $message);
+	public function sendTransaction($address, $amount, $passphrase) {
+		$params = [];
+		$params['recipients'] = [
+			['toAddress' => $address, 'value' => $amount]
+		];
+		$params['walletPassphrase'] = $passphrase;
+		return $this->_bitgo->post($this->url('sendtransaction'), $params);
 	}
 
-	/**
-	 * @param $recipients array associative mapping from receive address to amounts in satoshis
-	 * @param null $message
-	 * @return mixed
-	 */
-	public function sendMany($recipients, $message = null) {
-		$params = ['recipients' => $recipients];
-		if (!empty($message)) {
-			$params['message'] = $message;
-		}
-		return $this->_bitgo->post($this->url('sendmany'), $params);
+	public function listTransfers() {
+		return $this->_bitgo->get($this->url('transfer'));
+	}
+
+	public function getTransfer($transferID) {
+		return $this->_bitgo->get($this->url('transfer/' . $transferID));
 	}
 
 	public function listWebhooks() {
@@ -171,7 +135,7 @@ class Wallet {
 
 	private function url($extra = null) {
 		$extra = trim(trim($extra), '/'); // remove leading and trailing whitespace and slashes
-		$url = 'wallet/' . $this->getID();
+		$url = 'eth/wallet/' . $this->getID();
 		if (!empty($extra)) {
 			$url .= '/' . $extra;
 		}

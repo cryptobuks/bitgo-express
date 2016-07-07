@@ -1,14 +1,8 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: arik
- * Date: 7/5/16
- * Time: 7:40 PM
- */
 class KeychainsTest extends PHPUnit_Framework_TestCase {
 
-	public function testKeychains() {
+	public function testListKeychains() {
 		$bitgo = TestUtils::authenticateTestBitgo();
 		$keychains = $bitgo->keychains()->listKeychains();
 		$this->assertArrayHasKey('keychains', $keychains);

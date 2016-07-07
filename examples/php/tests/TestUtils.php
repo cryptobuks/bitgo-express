@@ -10,7 +10,7 @@ use BitGo\BitGoSDK;
  */
 class TestUtils {
 
-	public static function authenticateTestBitgo() {
+	static function authenticateTestBitgo() {
 		$bitgo = new BitGoSDK();
 		$bitgo->authenticate('tester@bitgo.com', getenv('BITGOJS_TEST_PASSWORD'));
 		return $bitgo;

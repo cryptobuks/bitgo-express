@@ -1,14 +1,9 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: arik
- * Date: 10/28/15
- * Time: 11:53 AM
- */
 
 namespace BitGo;
 
 
+use BitGo\eth\Ethereum;
 use Unirest\Request;
 use Unirest\Response;
 
@@ -20,6 +15,7 @@ class BitGoSDK {
 	private $_token = null;
 
 	private $_keychains;
+	private $_eth;
 	private $_wallets;
 
 	/**
@@ -32,8 +28,9 @@ class BitGoSDK {
 			$port = $customPort;
 		}
 		$this->_baseURL = 'http://localhost:' . $port;
-		
+
 		$this->_keychains = new Keychains($this);
+		$this->_eth = new Ethereum($this);
 		$this->_wallets = new Wallets($this);
 	}
 
@@ -50,22 +47,30 @@ class BitGoSDK {
 		return $response;
 	}
 
+	public function authenticateWithAccessToken($token) {
+		$this->_token = $token;
+	}
+
 	function get($api) {
 		$response = Request::get($this->_baseURL . '/api/v1/' . $api, $this->prepareHeaders());
 		return self::handleResponse($response);
 	}
 
 	function post($api, $body = null) {
-		$headers = ['content-type' => 'application/json'];
-		if ($this->_token) {
-			$headers['authentication'] = 'Bearer ' . $this->_token;
-		}
-
-		$json = null;
-		if (!empty($body)) {
-			$json = json_encode($body);
-		}
+		$json = $this->prepareRequestBody($body);
 		$response = Request::post($this->_baseURL . '/api/v1/' . $api, $this->prepareHeaders(), $json);
+		return self::handleResponse($response);
+	}
+
+	function put($api, $body = null) {
+		$json = $this->prepareRequestBody($body);
+		$response = Request::put($this->_baseURL . '/api/v1/' . $api, $this->prepareHeaders(), $json);
+		return self::handleResponse($response);
+	}
+
+	function delete($api, $body = null) {
+		$json = $this->prepareRequestBody($body);
+		$response = Request::delete($this->_baseURL . '/api/v1/' . $api, $this->prepareHeaders(), $json);
 		return self::handleResponse($response);
 	}
 
@@ -75,6 +80,13 @@ class BitGoSDK {
 			$headers['authorization'] = 'Bearer ' . $this->_token;
 		}
 		return $headers;
+	}
+
+	private function prepareRequestBody($body = null) {
+		if (!empty($body)) {
+			return json_encode($body);
+		}
+		return null;
 	}
 
 	private static function handleResponse(Response $response) {
@@ -99,7 +111,7 @@ class BitGoSDK {
 		return $this->get('user/session');
 	}
 
-	public function unlock($otp){
+	public function unlock($otp) {
 		$this->assertAuthenticated();
 		return $this->post('user/unlock', ['otp' => $otp]);
 	}
@@ -107,6 +119,10 @@ class BitGoSDK {
 	public function keychains() {
 		$this->assertAuthenticated();
 		return $this->_keychains;
+	}
+
+	public function eth() {
+		return $this->_eth;
 	}
 
 	public function wallets() {
@@ -118,7 +134,7 @@ class BitGoSDK {
 		return $this->_token != null;
 	}
 
-	private function assertAuthenticated() {
+	function assertAuthenticated() {
 		if (!$this->isAuthenticated()) {
 			throw new \Exception('BitGo object needs to be authenticated');
 		}
