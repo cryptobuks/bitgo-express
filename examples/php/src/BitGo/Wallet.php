@@ -28,7 +28,7 @@ class Wallet {
 		return $this->_rawWallet['id'];
 	}
 
-	public function getLabel() {
+	public function getName() {
 		return $this->_rawWallet['label'];
 	}
 

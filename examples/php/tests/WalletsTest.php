@@ -91,4 +91,18 @@ class WalletsTest extends PHPUnit_Framework_TestCase {
 		}
 		$wallet->delete();
 	}
+
+	public function testWalletRename(){
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->wallets()->createWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		$oldName = $wallet->getName();
+		$randomName = base64_encode(mcrypt_create_iv(8));
+		$wallet->setName($randomName);
+		$refreshedWallet = $bitgo->wallets()->getWallet($wallet->getID());
+		$newName = $refreshedWallet->getName();
+		$this->assertEquals('Test Wallet', $oldName);
+		$this->assertEquals($randomName, $newName);
+		$refreshedWallet->delete();
+	}
 }
