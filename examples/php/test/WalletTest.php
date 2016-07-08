@@ -183,7 +183,6 @@ class WalletTest extends PHPUnit_Framework_TestCase {
 		sleep(5); // wait for 5 seconds
 
 		$refetchedTransaction = $wallet->getTransaction($transactionID);
-		print_r($refetchedTransaction);
 
 		$this->assertEquals($transactionID, $refetchedTransaction['id']);
 		$this->assertEquals($transaction['fee'], $refetchedTransaction['fee']);
