@@ -44,7 +44,7 @@ class WalletTest extends PHPUnit_Framework_TestCase {
 		$this->assertNotEmpty($address['redeemScript']);
 	}
 
-	public function testListLabels() {
+	public function testAddressLabels() {
 		$testWallet = self::getTestWallet();
 		$labelAddress = '2MxKo9RHNZHoPwmvnb5k8ytDJ6Shd1DHnsV';
 		$testWallet->setAddressLabel($labelAddress, 'testLabel');
@@ -124,7 +124,7 @@ class WalletTest extends PHPUnit_Framework_TestCase {
 		$testWallet = self::getTestWallet();
 
 		$webhooks = $testWallet->listWebhooks();
-		$this->assertCount(0, $webhooks['webhooks']);
+		$webhookCount = count($webhooks['webhooks']);
 
 		$webhook = $testWallet->createWebhook('transaction', 'https://fakesub.bitgo.com');
 		$this->assertNotEmpty($webhook['id']);
@@ -135,12 +135,12 @@ class WalletTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('https://fakesub.bitgo.com', $webhook['url']);
 
 		$webhooks = $testWallet->listWebhooks();
-		$this->assertCount(1, $webhooks['webhooks']);
+		$this->assertCount($webhookCount + 1, $webhooks['webhooks']);
 
 		$testWallet->deleteWebhook('transaction', 'https://fakesub.bitgo.com');
 
 		$webhooks = $testWallet->listWebhooks();
-		$this->assertCount(0, $webhooks['webhooks']);
+		$this->assertCount($webhookCount, $webhooks['webhooks']);
 	}
 
 	public function testStats() {
@@ -194,7 +194,6 @@ class WalletTest extends PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('inputs', $refetchedTransaction);
 		$this->assertArrayHasKey('outputs', $refetchedTransaction);
 		$this->assertArrayHasKey('entries', $refetchedTransaction);
-
 	}
 
 	public function testStaticProperties() {

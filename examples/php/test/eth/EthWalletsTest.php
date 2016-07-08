@@ -2,6 +2,8 @@
 
 namespace eth;
 
+use BitGo\eth\EthWallet;
+use Exception;
 use TestUtils;
 
 class EthWalletsTest extends \PHPUnit_Framework_TestCase {
@@ -21,6 +23,33 @@ class EthWalletsTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('wallet', $wallet);
 		$this->assertArrayHasKey('userKeychain', $wallet);
 		$this->assertArrayHasKey('backupKeychain', $wallet);
+		$ethWallet = $wallet['wallet'];
+		$this->assertTrue($ethWallet instanceof EthWallet);
+		$this->assertCount(3, $ethWallet->getSigningAddresses());
+	}
+
+	public function testGenerateWalletWithBackupXpub() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$backupXpub = 'xpub661MyMwAqRbcGU7FnXMKSHMwbWxARxYJUpKD1CoMJP6vonLT9bZZaWYq7A7tKPXmDFFXTKigT7VHMnbtEnjCmxQ1E93ZJe6HDKwxWD28M6f';
+		$wallet = $bitgo->eth()->wallets()->generateWallet('Test Wallet', 'test passphrase', null, null, $backupXpub);
+		$this->assertArrayHasKey('wallet', $wallet);
+		$this->assertArrayHasKey('userKeychain', $wallet);
+		$this->assertArrayHasKey('backupKeychain', $wallet);
+		$this->assertEquals($backupXpub, $wallet['backupKeychain']['xpub']);
+		$wallet['wallet']->delete();
+	}
+
+	public function testGenerateWalletWithBackupAddress() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$backupAddress = '0xfb32740232ecf3fd6d5a7bfc514a2cfb8a310e9b';
+		$wallet = $bitgo->eth()->wallets()->generateWallet('Test Wallet', 'test passphrase', null, $backupAddress);
+		$this->assertArrayHasKey('wallet', $wallet);
+		$this->assertArrayHasKey('userKeychain', $wallet);
+		$this->assertArrayNotHasKey('backupKeychain', $wallet);
+		$signingAddresses = $wallet['wallet']->getSigningAddresses();
+		$this->assertCount(3, $signingAddresses);
+		$this->assertEquals($backupAddress, $signingAddresses[1]['address']);
+		$wallet['wallet']->delete();
 	}
 
 	public function testGetWallet() {
@@ -29,4 +58,73 @@ class EthWalletsTest extends \PHPUnit_Framework_TestCase {
 		$wallet = $bitgo->eth()->wallets()->getWallet($walletID);
 		$tx = $wallet->listTransfers();
 	}
+
+	public function testWalletRename(){
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->eth()->wallets()->generateWallet('Test Wallet', 'test passphrase', 'keyternal');
+		$wallet = $response['wallet'];
+		$oldName = $wallet->getName();
+		$randomName = base64_encode(mcrypt_create_iv(8));
+		$wallet->setName($randomName);
+		$refreshedWallet = $bitgo->eth()->wallets()->getWallet($wallet->getID());
+		$newName = $refreshedWallet->getName();
+		$this->assertEquals('Test Wallet', $oldName);
+		$this->assertEquals($randomName, $newName);
+		$refreshedWallet->delete();
+	}
+
+	public function testFreezeWallet() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->eth()->wallets()->generateWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		$bitgo->unlock('0000000');
+		$wallet->freeze();
+		$bitgo->lock();
+		$wallet->delete();
+	}
+
+	public function testNegativeDurationFreezeWallet() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->eth()->wallets()->generateWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		$bitgo->unlock('0000000');
+		try {
+			$wallet->freeze(-50);
+			$this->fail();
+		} catch (Exception $e) {
+			$this->assertEquals(400, $e->getCode());
+			$this->assertEquals('invalid limit', $e->getMessage());
+		}
+		$bitgo->lock();
+		$wallet->delete();
+	}
+
+	public function testDurationFreezeWalletRetrieval() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->eth()->wallets()->generateWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		$bitgo->unlock('0000000');
+		$lockDuration = 50;
+		$wallet->freeze($lockDuration);
+		$bitgo->lock();
+		$refreshedWallet = $bitgo->eth()->wallets()->getWallet($wallet->getID());
+		$this->assertNotEmpty($refreshedWallet->getRawWallet()['freeze']['time']);
+		$this->assertNotEmpty($refreshedWallet->getRawWallet()['freeze']['expires']);
+		$wallet->delete();
+	}
+
+	public function testLockedFreezeWallet() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$response = $bitgo->eth()->wallets()->generateWallet('Test Wallet', 'test passphrase');
+		$wallet = $response['wallet'];
+		try {
+			$wallet->freeze();
+			$this->fail();
+		} catch (Exception $e) {
+			$this->assertEquals(401, $e->getCode());
+			$this->assertEquals('needs unlock', $e->getMessage());
+		}
+		$wallet->delete();
+	}
+
 }

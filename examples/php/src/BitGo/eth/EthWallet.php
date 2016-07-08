@@ -29,12 +29,15 @@ class EthWallet {
 		return $this->_rawEthWallet['id'];
 	}
 
-	public function getLabel() {
+	public function getSigningAddresses(){
+		return $this->_rawEthWallet['private']['addresses'];
+	}
+
+	public function getName() {
 		return $this->_rawEthWallet['label'];
 	}
 
 	public function getBalance() {
-
 		return $this->_rawEthWallet['balance'];
 	}
 
@@ -44,10 +47,6 @@ class EthWallet {
 
 	public function createAddress() {
 		return $this->_bitgo->post($this->url('address'));
-	}
-
-	public function getStats() {
-		return $this->_bitgo->get($this->url('stats'));
 	}
 
 	public function getAddress($address) {
