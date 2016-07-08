@@ -1,14 +1,7 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: arik
- * Date: 7/6/16
- * Time: 2:48 PM
- */
 
 namespace eth;
 
-use BitGo\BitGoSDK;
 use TestUtils;
 
 class EthWalletsTest extends \PHPUnit_Framework_TestCase {

@@ -119,4 +119,96 @@ class WalletTest extends PHPUnit_Framework_TestCase {
 		$this->assertNotEmpty($firstEntry['account']);
 		$this->assertNotEmpty($firstEntry['value']);
 	}
+
+	public function testWebhooks() {
+		$testWallet = self::getTestWallet();
+
+		$webhooks = $testWallet->listWebhooks();
+		$this->assertCount(0, $webhooks['webhooks']);
+
+		$webhook = $testWallet->createWebhook('transaction', 'https://fakesub.bitgo.com');
+		$this->assertNotEmpty($webhook['id']);
+		$this->assertNotEmpty($webhook['created']);
+		$this->assertEquals($testWallet->getID(), $webhook['walletId']);
+		$this->assertEquals('bitcoin', $webhook['coin']);
+		$this->assertEquals('transaction', $webhook['type']);
+		$this->assertEquals('https://fakesub.bitgo.com', $webhook['url']);
+
+		$webhooks = $testWallet->listWebhooks();
+		$this->assertCount(1, $webhooks['webhooks']);
+
+		$testWallet->deleteWebhook('transaction', 'https://fakesub.bitgo.com');
+
+		$webhooks = $testWallet->listWebhooks();
+		$this->assertCount(0, $webhooks['webhooks']);
+	}
+
+	public function testStats() {
+		$testWallet = self::getTestWallet();
+		$stats = $testWallet->getStats();
+		$this->assertNotEmpty($stats['limit']);
+		$this->assertNotEmpty($stats['nSends']);
+		$this->assertNotEmpty($stats['nReceives']);
+		$this->assertCount(9, $stats['sendSizes']);
+		$this->assertCount(9, $stats['recvSizes']);
+	}
+
+	public function testTransactions() {
+		$bitgo = TestUtils::authenticateTestBitgo();
+		$wallet = $bitgo->wallets()->getWallet('2MtepahRn4qTihhTvUuGTYUyUBkQZzaVBG3');
+		$receiveAddress = $wallet->createAddress()['address'];
+		$password = 'test wallet #1 security';
+
+		try {
+			$wallet->sendCoins($receiveAddress, 100000, $password, 'test tx');
+			$this->fail();
+		} catch (Exception $e) {
+			$this->assertEquals(401, $e->getCode());
+			$this->assertEquals('needs unlock', $e->getMessage());
+		}
+
+		$bitgo->unlock('0000000');
+		$transaction = $wallet->sendCoins($receiveAddress, 100000, $password, 'test tx');
+		$bitgo->lock();
+
+		$this->assertEquals('accepted', $transaction['status']);
+		$this->assertGreaterThan(0, $transaction['fee']);
+		$this->assertGreaterThan(0, $transaction['feeRate']);
+		$this->assertNotNull($transaction['tx']);
+		$this->assertNotNull($transaction['hash']);
+
+		$transactionID = $transaction['hash'];
+
+		// let the transaction be broadcast
+		sleep(5); // wait for 5 seconds
+
+		$refetchedTransaction = $wallet->getTransaction($transactionID);
+		print_r($refetchedTransaction);
+
+		$this->assertEquals($transactionID, $refetchedTransaction['id']);
+		$this->assertEquals($transaction['fee'], $refetchedTransaction['fee']);
+		$this->assertEquals($transaction['tx'], $refetchedTransaction['hex']);
+		$this->assertEquals('test tx', $refetchedTransaction['comment']);
+
+		$this->assertNotEmpty($refetchedTransaction['normalizedHash']);
+		$this->assertNotEmpty($refetchedTransaction['date']);
+		$this->assertArrayHasKey('inputs', $refetchedTransaction);
+		$this->assertArrayHasKey('outputs', $refetchedTransaction);
+		$this->assertArrayHasKey('entries', $refetchedTransaction);
+
+	}
+
+	public function testStaticProperties() {
+		$testWallet = self::getTestWallet();
+		$this->assertGreaterThan(0, $testWallet->getBalance());
+		$this->assertGreaterThan(0, $testWallet->getSpendableBalance());
+		$this->assertGreaterThan(0, $testWallet->getConfirmedBalance());
+
+		$this->assertGreaterThanOrEqual(0, $testWallet->getUnconfirmedSends());
+		$this->assertGreaterThanOrEqual(0, $testWallet->getUnconfirmedReceives());
+
+		$this->assertEquals('safehd', $testWallet->getType());
+		$this->assertEquals(false, $testWallet->canSendInstant());
+		$this->assertEquals(0, $testWallet->getInstantBalance());
+	}
 }

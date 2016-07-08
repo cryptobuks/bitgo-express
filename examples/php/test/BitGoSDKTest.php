@@ -71,6 +71,7 @@ class BitGoSDKTest extends PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('expires', $unlock['session']['unlock']);
 		$this->assertArrayHasKey('txValueLimit', $unlock['session']['unlock']);
 		$this->assertArrayHasKey('txValue', $unlock['session']['unlock']);
+		$bitgo->lock();
 	}
 
 }

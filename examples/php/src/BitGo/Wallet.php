@@ -45,19 +45,11 @@ class Wallet {
 	}
 
 	public function canSendInstant() {
-		return !!$this->_rawWallet['canSendInstant'];
+		return isset($this->_rawWallet['canSendInstant']) && !!$this->_rawWallet['canSendInstant'];
 	}
 
 	public function getInstantBalance() {
 		return $this->_rawWallet['instantBalance'];
-	}
-
-	public function listUnconfirmedSends() {
-		return $this->_rawWallet['unconfirmedSends'];
-	}
-
-	public function listUnconfirmedReceives() {
-		return $this->_rawWallet['unconfirmedReceives'];
 	}
 
 	public function getType() {
@@ -70,6 +62,14 @@ class Wallet {
 
 	public function listAddresses() {
 		return $this->_bitgo->get($this->url('addresses'));
+	}
+
+	public function getUnconfirmedSends() {
+		return $this->_rawWallet['unconfirmedSends'];
+	}
+
+	public function getUnconfirmedReceives() {
+		return $this->_rawWallet['unconfirmedReceives'];
 	}
 
 	public function getStats() {
