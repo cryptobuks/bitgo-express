@@ -1,0 +1,31 @@
+{
+    "name": "bitgo/bitgo-php-sdk",
+    "description": "An SDK in PHP for using the BitGo functionality.",
+    "authors": [
+        {
+            "name": "Arik Sosman",
+            "email": "arik@bitgo.com"
+        }
+    ],
+    "license": "MIT",
+    "scripts": {
+        "test": "./vendor/bin/phpunit --bootstrap ./vendor/autoload.php test/"
+    },
+    "require": {
+        "php": ">=5.4",
+        "mashape/unirest-php": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "BitGo\\": "src/BitGo"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "": "test"
+        }
+    }
+}
