@@ -1,0 +1,3 @@
+[submodule "examples/php"]
+	path = examples/php
+	url = git@github.com:BitGo/express-php-sdk.git
