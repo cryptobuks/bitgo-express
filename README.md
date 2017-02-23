@@ -1,37 +1,7 @@
-<img src="https://raw.githubusercontent.com/bitgo/bitgo-express/master/misc/img/logo.png" alt="BitGo Express" width="300">
+# Notice
 
-[![BitGo Slack](https://slack.bitgo.com/badge.svg)](https://slack.bitgo.com)
+This NPM package is maintained for existing users only. It is far simpler to use the Express app bundled with [bitgo](https://github.com/BitGo/BitGoJS)
 
-BitGo Express makes it easy to build multi-signature Bitcoin applications in any language. BitGo Express provides a local REST API interface which handles all client-side operations involving your private keys. This ensures your keys never leave your network, and are not seen by BitGo. 
+If you're a new user or existing user looking to upgrade, please download [The BitGo SDK NPM package](https://github.com/BitGo/BitGoJS) and follow the instructions at
 
-BitGo Express can also proxy the standard BitGo REST APIs, providing a unified interface to BitGo through a single REST API.
-
-# Run
-
-Basic
-
-`./bin/bitgo-express --debug --port 3080 --env test --bind localhost`
-
-Advanced
-
-`./bin/bitgo-express [-h] [-v] [-p PORT] [-b BIND] [-e ENV] [-d] [-l LOGFILEPATH] [-k KEYPATH] [-c CRTPATH]`
-
-*Make* **ALL** *BitGo REST API calls to the machine on which bitgo-express is running*
-
-# Installation
-
-`npm install`
-
-# Documentation & Help
-
-https://www.bitgo.com/api/#bitgo-express-rest-api
-
-Please join us on our [Slack channel](https://slack.bitgo.com) if you have any questions or comments.
-
-# Quick Start
-
-[Click here] (https://medium.com/@masonic_tweets/getting-started-with-bitgo-express-a097589c1e9c) to view our quick start guide. 
-
-
-
-
+https://github.com/BitGo/BitGoJS#bitgo-express-local-signing-server-rest-api
