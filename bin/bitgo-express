@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 var argumentParser = require('argparse').ArgumentParser;
-var expressApp = require('../src/index.js');
+var expressApp = require('../src/expressApp');
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
-var pjson = require('../node_modules/bitgo/package.json');
+var pjson = require('../package.json');
+var constants = require('constants');
 
 // Handle arguments
 var getArgs = function () {
@@ -69,6 +70,12 @@ var getArgs = function () {
     help: 'Allow running against production in non-SSL mode (at your own risk!)'
   });
 
+  parser.addArgument(
+  ['--disableproxy'], {
+    action: 'storeTrue',
+    help: 'disable the proxy, not routing any non-express routes'
+  });
+
   return parser.parseArgs();
 };
 
@@ -96,10 +103,13 @@ if (args.keypath && args.crtpath) {
   // Run in SSL mode
   var privateKey  = fs.readFileSync(args.keypath, 'utf8');
   var certificate = fs.readFileSync(args.crtpath, 'utf8');
-  var credentials = {key: privateKey, cert: certificate};
   baseUri += "s";
 
-  server = https.createServer(credentials, app);
+  server = https.createServer({
+    secureOptions: constants.SSL_OP_NO_TLSv1,
+    key: privateKey,
+    cert: certificate
+  }, app);
 } else {
   server = http.createServer(app);
 }
