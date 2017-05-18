@@ -1,6 +1,6 @@
 {
   "name": "bitgo-express",
-  "version": "3.2.6",
+  "version": "3.2.8",
   "description": "BitGo Express",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "author": "Arik Sosman",
   "dependencies": {
     "argparse": "^1.0.3",
-    "bitgo": "3.2.5",
+    "bitgo": "3.2.8",
     "express": "^4.13.3",
     "fs": "0.0.2",
     "http": "0.0.0",
