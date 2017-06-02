@@ -13,7 +13,7 @@
   "author": "Arik Sosman",
   "dependencies": {
     "argparse": "^1.0.3",
-    "bitgo": "3.2.8",
+    "bitgo": "3.3.10",
     "express": "^4.13.3",
     "fs": "0.0.2",
     "http": "0.0.0",
