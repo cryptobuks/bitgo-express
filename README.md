@@ -1,4 +1,4 @@
-# Notice
+# Notice: DEPRECATED
 
 This NPM package is maintained for existing users only. It is far simpler to use the Express app bundled with [bitgo](https://github.com/BitGo/BitGoJS)
 
